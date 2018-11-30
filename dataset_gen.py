@@ -1,12 +1,16 @@
+import Config
 import numpy as np
-import multiprocessing
+import multiprocessing as mp
 from scipy.io import wavfile
-import json
 import gen
+from gen import single_generate
 from tqdm import tqdm
 
-training_set_size = 1000
-parameters_num = gen.param_num
+import json
+from IPython import embed
+
+training_set_size = Config.sample_num
+parameters_num = Config.param_num
 
 test_dir = './'
 tmp_folder = './TMPGEN/'
@@ -20,12 +24,15 @@ def param_gen(length, param_num):
     # A simple random version
     # TODO: make a better version
 
-    ram_array = np.random.rand(length, param_num)
-    ram *= 100
-    ram_array.astype(np.uint8)
+    rand_array = np.random.rand(length, param_num)
+    rand_array = rand_array * 100
 
+    # make integer
+    rand_array.astype(np.uint8)
 
-def dataset_gen(training_set_size, parameters_num):
+    return rand_array
+
+def dataset_genenerate(training_set_size, parameters_num, progress_mark=False, thread=-1):
     """Generate the training datasets
     Args:
         the size of training set (how many samples)
@@ -35,29 +42,44 @@ def dataset_gen(training_set_size, parameters_num):
         2. parameter matrix with shape(num_samples, num_params)
     """
 
+    tmp_folder = Config.tmp_folder
     params = param_gen(training_set_size, parameters_num)
-    total_mat, tmp_mat = None, None
+    total_mat, tmp_mat = 0, 0
+    
+    if thread >= 0:
+        print("Thread #{} Starts".format(thread))
 
-    print("Start Generating Data")
-    for i in tqdm(range(training_set_size)):
+    if progress_mark:
+        print("Start Generating Data")
+        iterate = tqdm(range(training_set_size))
+    else iterate = range(training_set_size)
+
+    for i in iterate:
         
         # Generate the data
         # TODO: Maybe change this to multiprocessing to make the process faster.
-        wav_data = generate(params[i], tmp_folder).reshape(1, parameters_num)
         
-        if tmp_mat is None:
+        wav_data = single_generate(params[i], tmp_folder)
+        wav_data = wav_data.reshape((1, wav_data.shape[0]))
+        # print(wav_data.shape)
+        if isinstance(tmp_mat, int):
             tmp_mat = wav_data
         else:
             tmp_mat = np.concatenate((tmp_mat, wav_data), axis=0)
 
         if (i % 100 == 0 and i > 0):
-            if total_mat is None:
+            if isinstance(total_mat, int):
                 total_mat = tmp_mat
             else:
                 total_mat = np.concatenate((total_mat, tmp_mat), axis = 0)
-            tmp_mat = None
-        
-        print("input training set shape: {}".format(total_mat.shape))
-        print("ground truth set shape: {}".format(params.shape))
+            tmp_mat = 0
+    
+    if isinstance(total_mat, int):
+        total_mat = tmp_mat
+    elif not isinstance(tmp_mat, int):
+        total_mat = np.concatenate((total_mat, tmp_mat), axis = 0)
 
-        return total_mat, params
+    print("input training set shape: {}".format(total_mat.shape))
+    print("ground truth set shape: {}".format(params.shape))
+
+    return total_mat, params
