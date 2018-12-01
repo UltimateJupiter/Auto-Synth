@@ -1,7 +1,64 @@
 ## DX-7 Auto Generating
 
-The generator is writen in python, it reads from either a .json file or from a .txt file
+---
 
-There are 157 parameters in this generation. During the testing period, please run gen.py and edit testing_params.txt
+### To Teammates
 
-A output wave file will be output name as out.wav
+**@jeffery @lucas** please fork this repo and change the generator written in [dataset_gen.py](https://github.com/UltimateJupiter/Auto-Synth/blob/master/dataset_gen.py)
+
+```py
+def param_gen(length, param_num): 
+    
+    # TODO: make a better version
+
+    # A simple random version
+    rand_array = np.random.rand(length, param_num)
+    rand_array = rand_array * 100
+
+    # make integer
+    rand_array.astype(np.uint8)
+
+    return rand_array
+```
+
+---
+
+### Environments
+
+**This project is based on Python 3.6**
+
+**Please install the following packages under pip3**
+
+| Package Needed  	| Usage                      	|
+|-----------------	|----------------------------	|
+| pickle          	| data encoding              	|
+| scipy           	| scientific computing       	|
+| numpy           	| scientific computing       	|
+| multiprocessing 	| multi thread computing     	|
+| tqdm            	| visualization              	|
+| tensorflow      	| machine learning core      	|
+| keras           	| machine learning embedding 	|
+| IPython         	| debugging                  	|
+
+---
+
+### Notes
+**The code for dataset generating part is completed, network is under construction.**
+
+The current version encode the dataset into pure binary code (e.g. [Datasets/RandomTest/RandomTest-params.pkl](https://github.com/UltimateJupiter/Auto-Synth/blob/master/Datasets/RandomTest/RandomTest-params.pkl))
+
+Two files exists in the dataset folder:
+
+NAME-params.pkl (TRAINING_SET_SIZE * PARAM_NUMBER)
+
+NAME-wavs.pkl (TRAINING_SET_SIZE * FRAMES_PER_FILE)
+
+These can be decoded by [pickle](https://docs.python.org/3/library/pickle.html)
+
+---
+
+### Training Data Generating
+
+1. Change the function param_gen in dataset_gen.py
+2. Modify Config.py to change the parameters including parameter number, thread number, and trainig set size
+3. Import dataset_gen to any code or in IPython, and call dataset_gen.generate(**NAME**). A folder called NAME will appear in the Datasets Folder.
