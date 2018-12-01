@@ -3,5 +3,5 @@ tmp_folder = base_dir + "TMPGEN/"
 dataset_folder = base_dir + "Datasets/"
 
 param_num = 147
-sample_num = 1000
-thread_num = 12
+sample_num = 100000
+thread_num = 20

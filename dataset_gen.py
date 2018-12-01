@@ -58,7 +58,8 @@ def dataset_genenerate(training_set_size, parameters_num, progress_mark=False, t
         print("Thread #{} Starts".format(thread))
 
     if progress_mark:
-        print("Start Generating Data\nProgress for thread #0:")
+        time.sleep(1)
+        print("\nStart Generating Data\nDisplaying progress for thread #0:")
         iterate = tqdm(range(training_set_size))
     else:
         iterate = range(training_set_size)

@@ -2,7 +2,6 @@ import numpy as np
 import os
 import scipy
 import Config
-from text_parsing import ret_parse
 from scipy.io import wavfile
 from datetime import datetime
 
@@ -29,7 +28,6 @@ def single_generate(ind_array, tmp_folder, thread):
         The wavefile in a numpy array of int16
     """
     
-    # ind_array = ret_parse()
     assert len(ind_array) == Config.param_num, (len(ind_array), ind_array)
 
     param_set = ""
