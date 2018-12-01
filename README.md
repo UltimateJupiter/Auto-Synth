@@ -50,6 +50,7 @@ The current version encode the dataset into pure binary code (e.g. [Datasets/Ran
 Two files exists in the dataset folder:
 
 > NAME-params.pkl (TRAINING_SET_SIZE * PARAM_NUMBER)
+>
 > NAME-wavs.pkl (TRAINING_SET_SIZE * FRAMES_PER_FILE)
 
 These can be decoded by [pickle](https://docs.python.org/3/library/pickle.html)
