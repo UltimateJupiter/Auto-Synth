@@ -2,3 +2,4 @@ __pycache__
 Datasets/
 sample_syxs/
 TMPGEN/
+.DS_Store
