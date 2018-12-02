@@ -11,5 +11,5 @@ generator = resources_dir + "mrswatson"
 
 param_num = 15
 # param_num = 147
-sample_num = 40000
-thread_num = 30
+sample_num = 40
+thread_num = 2
