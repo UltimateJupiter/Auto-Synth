@@ -18,24 +18,26 @@ parameters_num = Config.param_num
 
 base_dir = Config.base_dir
 test_dir = './'
-tmp_folder = base_dir + 'TMPGEN/'
-resources_dir = base_dir + 'resources/'
+tmp_folder = Config.tmp_folder
+resources_dir = Config.resources_dir
 # dx_vst = resources_dir + 'mda_DX10.vst'
-dx_vst = resources_dir + 'Dexed.vst'
-midi_fl = resources_dir + 'midi_export.mid'
-generator = resources_dir + 'mrswatson'
+dx_vst = Config.dx_vst
+midi_fl = Config.midi_fl
+generator = Config.generator
 
 
 def param_gen(length, param_num): 
     
     # TODO: make a better version
-
+    
+    if param_num == 15:
+        rand_array = np.random.rand(length, param_num)
     # A simple random version
-    rand_array = np.random.rand(length, param_num)
-    rand_array = rand_array * 100
-
-    # make integer
-    rand_array.astype(np.uint8)
+    else:
+        rand_array = np.random.rand(length, param_num)
+        rand_array = rand_array * 100
+        rand_array.astype(np.uint8)
+        # make integer
 
     return rand_array
 
@@ -50,6 +52,7 @@ def dataset_genenerate(training_set_size, parameters_num, progress_mark=False, t
         2. parameter matrix with shape(num_samples, num_params)
     """
 
+    np.random.seed(thread)
     tmp_folder = Config.tmp_folder
     params = param_gen(training_set_size, parameters_num)
     total_mat, tmp_mat = 0, 0
@@ -86,9 +89,6 @@ def dataset_genenerate(training_set_size, parameters_num, progress_mark=False, t
         total_mat = tmp_mat
     elif not isinstance(tmp_mat, int):
         total_mat = np.concatenate((total_mat, tmp_mat), axis = 0)
-    
-    print("input training set shape: {}".format(total_mat.shape))
-    print("ground truth set shape: {}".format(params.shape))
     
     
     if thread != -1:
@@ -134,6 +134,9 @@ def multithread_data_generating(training_set_size, parameters_num, num_threads):
 
     params = np.concatenate([ret_mats[i][1] for i in range(num_threads)], axis = 0)
     wavs = np.concatenate([ret_mats[i][0] for i in range(num_threads)], axis = 0)
+    
+    print("input training set shape: {}".format(wavs.shape))
+    print("ground truth set shape: {}".format(params.shape))
     
     return wavs, params
 

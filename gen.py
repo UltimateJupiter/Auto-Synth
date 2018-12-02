@@ -5,15 +5,17 @@ import Config
 from scipy.io import wavfile
 from datetime import datetime
 
-test_dir = './'
-resources_dir = './resources/'
-# dx_vst = resources_dir + 'mda_DX10.vst'
-dx_vst = resources_dir + 'Dexed.vst'
-midi_fl = resources_dir + 'midi_export.mid'
-generator = resources_dir + 'mrswatson'
-# fl_name = 'test.wav'
+training_set_size = Config.sample_num
+parameters_num = Config.param_num
 
-tmp_folder = './TMPGEN/'
+base_dir = Config.base_dir
+test_dir = './'
+tmp_folder = Config.tmp_folder
+resources_dir = Config.resources_dir
+# dx_vst = resources_dir + 'mda_DX10.vst'
+dx_vst = Config.dx_vst
+midi_fl = Config.midi_fl
+generator = Config.generator
 
 def base_command(generator, vst, midi, param, flname):
     ret = "{} --channels 1 --quiet --plugin \"{}\" --midi-file {} {} --output \"{}\"".format(generator, vst, midi, param, flname)
@@ -27,7 +29,6 @@ def single_generate(ind_array, tmp_folder, thread):
     Returns:
         The wavefile in a numpy array of int16
     """
-    
     assert len(ind_array) == Config.param_num, (len(ind_array), ind_array)
 
     param_set = ""
