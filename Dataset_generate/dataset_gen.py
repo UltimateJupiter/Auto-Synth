@@ -52,7 +52,7 @@ def dataset_genenerate(training_set_size, parameters_num, progress_mark=False, t
         2. parameter matrix with shape(num_samples, num_params)
     """
 
-    np.random.seed(thread)
+    np.random.seed(thread + int(datetime.now().microsecond / 500))
     tmp_folder = Config.tmp_folder
     params = param_gen(training_set_size, parameters_num)
     total_mat, tmp_mat = 0, 0
