@@ -17,12 +17,12 @@ from keras.callbacks import EarlyStopping, TensorBoard
 import Configs.General_Configs as gConfigs
 from pickle_decode import decode as read_dataset
 
-size = 20
+size = 40
 test_params, test_wavs = read_dataset(config.test_set, config.conv_friendly)
 test_params, test_wavs = test_params[:size], test_wavs[:size]
 
-model_name = "./train_logs/DX10-Random-15params-10k-model-_991556.h5"
-save_dir = model_name.replace("h5",".results/")
+model_name = "./train_logs/DX10-Random-15params-10k-model-_606028.h5"
+save_dir = model_name.replace("h5","results/")
 
 import os
 from tqdm import tqdm
