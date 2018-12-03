@@ -57,6 +57,7 @@ def dataset_genenerate(training_set_size, parameters_num, progress_mark=False, t
     tmp_folder = Config.tmp_folder
     params = param_gen(training_set_size, parameters_num)
     total_mat, tmp_mat = 0, 0
+    total_fft, tmp_fft = 0, 0
     
     if thread >= 0:
         print("Thread #{} Starts".format(thread))
@@ -72,7 +73,7 @@ def dataset_genenerate(training_set_size, parameters_num, progress_mark=False, t
         
         # Generate the data
         wav_data = single_generate(params[i], tmp_folder, thread)
-        fft_data = fft(wave_data, Config.fft_frame).expand_dims(0)
+        fft_data = np.expand_dims(fft(wav_data, Config.fft_frame), axis=0)
 
         wav_data = wav_data.reshape((1, wav_data.shape[0]))
         # print(wav_data.shape)
@@ -81,6 +82,11 @@ def dataset_genenerate(training_set_size, parameters_num, progress_mark=False, t
         else:
             tmp_mat = np.concatenate((tmp_mat, wav_data), axis=0)
 
+        if isinstance(tmp_fft, int):
+            tmp_fft = fft_data
+        else:
+            tmp_fft = np.concatenate((tmp_fft, fft_data), axis=0)
+
         if (i % 100 == 0 and i > 0):
             if isinstance(total_mat, int):
                 total_mat = tmp_mat
@@ -88,14 +94,26 @@ def dataset_genenerate(training_set_size, parameters_num, progress_mark=False, t
                 total_mat = np.concatenate((total_mat, tmp_mat), axis = 0)
             tmp_mat = 0
     
+        if (i % 100 == 0 and i > 0):
+            if isinstance(total_fft, int):
+                total_fft = tmp_fft
+            else:
+                total_fft = np.concatenate((total_fft, tmp_fft), axis = 0)
+            tmp_fft = 0
+    
     if isinstance(total_mat, int):
         total_mat = tmp_mat
     elif not isinstance(tmp_mat, int):
         total_mat = np.concatenate((total_mat, tmp_mat), axis = 0)
     
+    if isinstance(total_fft, int):
+        total_fft = tmp_fft
+    elif not isinstance(tmp_fft, int):
+        total_fft = np.concatenate((total_fft, tmp_fft), axis = 0)
+    
     
     if thread != -1:
-        ret = [total_mat, params]
+        ret = [total_mat, params, total_fft]
         encode_name = "{}{}T-{}".format(tmp_folder, id(datetime.now()), thread)
         fl = open(encode_name, "wb")
         ret_encoded = pkl.dump(ret, fl)
@@ -136,23 +154,27 @@ def multithread_data_generating(training_set_size, parameters_num, num_threads):
         os.system.__call__("rm {}".format(name))
 
     params = np.concatenate([ret_mats[i][1] for i in range(num_threads)], axis = 0)
+    ffts = np.concatenate([ret_mats[i][2] for i in range(num_threads)], axis = 0)
     wavs = np.concatenate([ret_mats[i][0] for i in range(num_threads)], axis = 0)
     
-    print("input training set shape: {}".format(wavs.shape))
+    print("input wave training set shape: {}".format(wavs.shape))
+    print("input spectrum training set shape: {}".format(ffts.shape))
     print("ground truth set shape: {}".format(params.shape))
     
-    return wavs, params
+    return wavs, params, ffts
 
 
 def generate(name):
 
-    wavs, params = multithread_data_generating(Config.sample_num, Config.param_num, Config.thread_num)
+    wavs, params, spectrums = multithread_data_generating(Config.sample_num, Config.param_num, Config.thread_num)
     if os.path.isdir(Config.dataset_folder + name):
         print("Folder Exists, Please Remove It Or Choose Another Name")
         exit()
     os.system.__call__("mkdir {}{}".format(Config.dataset_folder, name))
     wavs_fl = open("{}{}/{}-wav.pkl".format(Config.dataset_folder, name, name), "wb")
     params_fl = open("{}{}/{}-params.pkl".format(Config.dataset_folder, name, name), "wb")
+    spectrums_fl = open("{}{}/{}-spectrums.pkl".format(Config.dataset_folder, name, name), "wb")
     pkl.dump(wavs, wavs_fl)
     pkl.dump(params, params_fl)
+    pkl.dump(spectrums, spectrums_fl)
 

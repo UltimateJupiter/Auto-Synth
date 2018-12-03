@@ -9,19 +9,27 @@ from keras.models import Model, Sequential
 from keras.layers import Input, Dense, Conv1D, Conv2D, LSTM, Recurrent, MaxPool1D, MaxPool2D, Flatten
 from keras import losses, metrics, optimizers
 
-from keras.callbacks import EarlyStopping, TensorBoard
+from keras.callbacks import EarlyStopping, TensorBoard, LearningRateScheduler
 
 import Configs.C_DX10_Random_15params_10k as config
 from pickle_decode import decode as read_dataset
 
-train_params, train_wavs = read_dataset(config.training_set, config.conv_friendly)
-test_params, test_wavs = read_dataset(config.test_set, config.conv_friendly)
-val_params, val_wavs = read_dataset(config.validation_set, config.conv_friendly)
+train_params, train_wavs, _ = read_dataset(config.training_set, config.conv_friendly)
+test_params, test_wavs, _ = read_dataset(config.test_set, config.conv_friendly)
+val_params, val_wavs, _ = read_dataset(config.validation_set, config.conv_friendly)
 
 wav_size = train_wavs[0].shape[0]
 param_size = config.n_param
 
 print(wav_size, param_size)
+
+def exp_decay(epoch):
+   initial_lrate = 0.5
+   k = 0.75
+   lrate = initial_lrate * np.exp(-k*epoch)
+   return lrate
+
+lrate = LearningRateScheduler(exp_decay)
 
 
 def LSTM_network_builder(wav_size):
@@ -34,8 +42,8 @@ def LSTM_network_builder(wav_size):
     LSTM_1 = LSTM(32, dropout=0.05, recurrent_dropout=0.1, return_sequences=True)(pool_2)
     LSTM_2 = LSTM(16, dropout=0.05, recurrent_dropout=0.1, return_sequences=False)(LSTM_1)
     
-    fc_1 = Dense(200, activation="relu")(LSTM_2)
-    fc_2 = Dense(50, activation="tanh")(fc_1)
+    fc_1 = Dense(128, activation="relu")(LSTM_2)
+    fc_2 = Dense(64, activation="tanh")(fc_1)
     output = Dense(param_size, activation="tanh")(fc_2)
     model = Model(inputs=[input_ori_wav], outputs=[output])
     model.summary()
@@ -84,7 +92,7 @@ def train():
     #              metrics=[metrics.mse, metrics.mae]
     #              )
     
-    model.compile(optimizer=optimizers.Adam(),
+    model.compile(optimizer=optimizers.SGD(),
                   loss=losses.MSE,
                   metrics=[metrics.mse, metrics.mae]
                   )
@@ -106,7 +114,7 @@ def train():
               batch_size=config.batch_size,
               epochs=config.max_epoches,
               validation_data=(val_wavs, val_params),
-              callbacks=[earlystopping, tfboard]
+              callbacks=[earlystopping, tfboard, lrate]
               )
     model.save(config.local_log_dir + "-model-" + time_stamp + '.h5')
     score = model.evaluate(x=test_wavs,
