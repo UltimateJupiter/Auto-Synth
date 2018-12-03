@@ -9,6 +9,7 @@ from datetime import datetime
 import pickle as pkl
 from gen import single_generate
 from tqdm import tqdm
+from fft_decompose import fft
 
 import json
 from IPython import embed
@@ -71,6 +72,8 @@ def dataset_genenerate(training_set_size, parameters_num, progress_mark=False, t
         
         # Generate the data
         wav_data = single_generate(params[i], tmp_folder, thread)
+        fft_data = fft(wave_data, Config.fft_frame).expand_dims(0)
+
         wav_data = wav_data.reshape((1, wav_data.shape[0]))
         # print(wav_data.shape)
         if isinstance(tmp_mat, int):

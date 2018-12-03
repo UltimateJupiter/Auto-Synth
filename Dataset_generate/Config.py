@@ -13,3 +13,5 @@ param_num = 15
 # param_num = 147
 sample_num = 1000
 thread_num = 20
+
+fft_frame = 28

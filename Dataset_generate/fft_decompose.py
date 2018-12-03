@@ -3,7 +3,7 @@ import numpy as np
 def fft(sound, frames, visualization=False):
     
     window = int(len(sound)/frames)
-    assert window >= 1024
+    assert window >= 768
     total_array_get = 0
     hann = np.hanning(window)
 
@@ -12,8 +12,8 @@ def fft(sound, frames, visualization=False):
         start, end = frame * window, (frame + 1) * window
         audio = sound[start: end]
         audio = audio * hann
-        fft_frame = np.fft.fft(audio, 512)
-        fft_abs = np.abs(fft_frame)[:256]
+        fft_frame = np.fft.fft(audio, 768)
+        fft_abs = np.abs(fft_frame)[:384]
         fft_abs = fft_abs.reshape(1, len(fft_abs))
         
         #fft_abs = np.log10(fft_abs)
