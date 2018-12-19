@@ -1,5 +1,20 @@
 ## DX-7 Auto Generating
 
+### Updated for final release
+
+---
+
+This is a prooject amining on giving an approxiemate estimation of the synthesizer parameters of mdaDX10.vst to mimic a recorded sound timbre.
+
+#### A Simple Guide
+
+This project mainly consists of three parts
+
+1. Dataset Generating in folder Dataset_generate
+
+2. Network training and testing in folder Regression
+
+
 ---
 
 ### To Teammates

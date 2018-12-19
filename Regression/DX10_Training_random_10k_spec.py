@@ -32,11 +32,11 @@ def exp_decay(epoch):
 
 lrate = LearningRateScheduler(exp_decay)
 
-def Pure_rnn_spec_network_builder():
+def Pure_rnn_lstm_spec_network_builder():
 
     input_spec = Input(shape=(spec_shape[1], spec_shape[2],))
-    rnn_1 = SimpleRNN(384, return_sequences=False)(input_spec)
-    rnn_2 = LSTM(768, return_sequences=False)(input_spec)
+    rnn_1 = SimpleRNN(128, return_sequences=False)(input_spec)
+    rnn_2 = LSTM(384, return_sequences=False)(input_spec)
     c_1 = Concatenate()([rnn_1, rnn_2])
     fc_1 = Dense(64, activation="tanh")(c_1)
     fc_2 = Dense(32, activation="tanh")(fc_1)
@@ -48,7 +48,7 @@ def Pure_rnn_spec_network_builder():
     return model
 
 def Pure_cnn_spec_network_builder():
-
+    # Proved to be not good
     input_spec = Input(shape=(spec_shape[1], spec_shape[2],))
     conv_spec_1 = Conv2D(32, kernel_size=(2, 2), strides=(1, 1), padding="same")(input_spec)
     pool_spec_1 = MaxPool2D(pool_size=(2, 2))(conv_spec_1)
@@ -67,24 +67,23 @@ def Pure_cnn_spec_network_builder():
     return model
 
 def LSTM_spec_network_builder():
-
     # Conv on spec
     input_spec = Input(shape=(spec_shape[1], spec_shape[2],))
     rnn_1 = SimpleRNN(384, return_sequences=False)(input_spec)
     rnn_2 = LSTM(768, return_sequences=False)(input_spec)
     c_1 = Concatenate()([rnn_1, rnn_2])
 
-    fc_spec_1 = Dense(64, activation="tanh")(c_1)
+    fc_spec_1 = Dense(64, activation="relu")(c_1)
 
     input_ori_wav = Input(shape=(wav_size, 1, ))
     conv_1 = Conv1D(64, kernel_size=4, strides=2, padding="valid")(input_ori_wav)
     pool_1 = MaxPool1D(pool_size=4, padding="valid")(conv_1)
     conv_2 = Conv1D(128, kernel_size=8, strides=2, padding="valid")(pool_1)
     pool_2 = MaxPool1D(pool_size=16, padding="valid")(conv_2)
-    LSTM_1 = LSTM(16, dropout=0.05, recurrent_dropout=0.1, return_sequences=True)(pool_2)
-    LSTM_2 = LSTM(8, dropout=0.05, recurrent_dropout=0.1, return_sequences=False)(LSTM_1)
+    LSTM_1 = LSTM(32, dropout=0.05, recurrent_dropout=0.1, return_sequences=True)(pool_2)
+    LSTM_2 = LSTM(32, dropout=0.05, recurrent_dropout=0.1, return_sequences=False)(LSTM_1)
     
-    fc_1 = Dense(128, activation="relu")(LSTM_2)
+    fc_1 = Dense(64, activation="relu")(LSTM_2)
 
     concat_1 = Concatenate()([fc_1, fc_spec_1])
 
@@ -92,7 +91,9 @@ def LSTM_spec_network_builder():
     output = Dense(param_size, activation="relu")(fc_2)
     model = Model(inputs=[input_ori_wav, input_spec], outputs=[output])
     model.summary()
-
+    from keras.utils.vis_utils import plot_model   
+    plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
+    exit()
     return model
 
 
@@ -125,19 +126,6 @@ def train():
     print("\n\n=======================\nTensorboard Logs:\n{}\n========================\n\n".format("tensorboard --logdir={}".format(config.local_log_dir + time_stamp)))
     time.sleep(10)
     
-    '''
-    model.fit(x=train_specs,
-              y=train_params,
-              batch_size=config.batch_size,
-              epochs=config.max_epoches,
-              validation_data=(val_specs, val_params),
-              callbacks=[earlystopping, tfboard]
-              )
-
-    model.save(config.local_log_dir + "-model-" + time_stamp + '.h5')
-    score = model.evaluate(x=test_specs,
-                           y=test_params)
-    '''
 
     model.fit(x=[train_wavs, train_specs],
               y=train_params,
