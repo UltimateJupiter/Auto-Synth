@@ -4,16 +4,23 @@
 
 ---
 
-This is a prooject amining on giving an approxiemate estimation of the synthesizer parameters of mdaDX10.vst to mimic a recorded sound timbre.
+This is a project aiming on giving an approximate estimation of the synthesizer parameters of mdaDX10.vst to mimic a recorded sound timbre.
 
 #### A Simple Guide
 
-This project mainly consists of three parts
+This project mainly consists of two parts
 
-1. Dataset Generating in folder Dataset_generate
+1. Dataset Generating in folder **Dataset_generate**
 
-2. Network training and testing in folder Regression
+Adjust the configuration in Config.py
 
+run the generate function in dataset_gen.py
+
+2. Network training and testing in folder **Regression**
+
+Adjust the configuration in sub-folder Configs/
+
+Run the training code (e.g. DX10_Training_random_1k.py)
 
 ---
 
@@ -22,8 +29,8 @@ This project mainly consists of three parts
 **@jeffery @lucas** please fork this repo and change the generator written in [dataset_gen.py](https://github.com/UltimateJupiter/Auto-Synth/blob/master/dataset_gen.py)
 
 ```py
-def param_gen(length, param_num): 
-    
+def param_gen(length, param_num):
+
     # TODO: make a better version
 
     # A simple random version
@@ -75,5 +82,5 @@ These can be decoded by [pickle](https://docs.python.org/3/library/pickle.html)
 ### Training Data Generating
 
 1. Change the function param_gen in dataset_gen.py
-2. Modify Config.py to change the parameters including parameter number, thread number, and trainig set size
+2. Modify Config.py to change the parameters including parameter number, thread number, and training set size
 3. Import dataset_gen to any code or in IPython, and call dataset_gen.generate(**NAME**). A folder called NAME will appear in the Datasets Folder.

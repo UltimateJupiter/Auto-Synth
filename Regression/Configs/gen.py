@@ -3,8 +3,10 @@ import os
 import scipy
 from scipy.io import wavfile
 from datetime import datetime
+import General_Configs
 
-base_dir = "/Users/jupiter/DUKE/C18_Fall/PHYS_136/Research/Auto-Synth/"
+base_dir = General_Configs.base_dir
+
 tmp_folder = base_dir + "TMPGEN/"
 dataset_folder = base_dir + "Datasets/"
 resources_dir = base_dir + "resources/"
@@ -31,6 +33,6 @@ def single_generate(ind_array, file_name):
     param_set = ""
     for x in range(1, len(ind_array) + 1):
         param_set += "--parameter {},{} ".format(str(x), ind_array[x - 1])
-    
+
     cmd = base_command(generator, dx_vst, midi_fl, param_set, file_name)
     os.system.__call__(cmd)

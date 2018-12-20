@@ -23,6 +23,7 @@ def base_command(generator, vst, midi, param, flname):
 
 
 def single_generate(ind_array, tmp_folder, thread):
+
     """ Generate a single file
     Args:
         ind_array: an 1-D array with the length of the prameter set
@@ -34,7 +35,7 @@ def single_generate(ind_array, tmp_folder, thread):
     param_set = ""
     for x in range(0, len(ind_array)):
         param_set += "--parameter {},{} ".format(str(x), ind_array[x])
-    
+
     fl_name = tmp_folder + "T{}-{}.wav".format(str(thread), str(np.random.randint(0, 1e9)))
     cmd = base_command(generator, dx_vst, midi_fl, param_set, fl_name)
     os.system.__call__(cmd)

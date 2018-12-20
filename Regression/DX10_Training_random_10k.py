@@ -41,7 +41,7 @@ def LSTM_network_builder(wav_size):
     pool_2 = MaxPool1D(pool_size=16, padding="valid")(conv_2)
     LSTM_1 = LSTM(32, dropout=0.05, recurrent_dropout=0.1, return_sequences=True)(pool_2)
     LSTM_2 = LSTM(16, dropout=0.05, recurrent_dropout=0.1, return_sequences=False)(LSTM_1)
-    
+
     fc_1 = Dense(128, activation="relu")(LSTM_2)
     fc_2 = Dense(64, activation="tanh")(fc_1)
     output = Dense(param_size, activation="tanh")(fc_2)
@@ -67,7 +67,8 @@ def Conv1_network_builder(wav_size):
     model.summary()
     return model
 
-def FC_network_builder(wav_size):
+
+def FC_network_builder(wav_size): # For fun
 
     input_ori_wav = Input(shape=(wav_size,))
     l1 = Dense(1000, activation="relu")(input_ori_wav)
@@ -81,24 +82,25 @@ def FC_network_builder(wav_size):
     model = Model(inputs=[input_ori_wav], outputs=[output])
     return model
 
+
 def train():
-    
+
     # model = FC_network_builder(wav_size)
     # model = Conv1_network_builder(wav_size)
     model = LSTM_network_builder(wav_size)
-    
+
     # model.compile(optimizer=optimizers.Adam(),
     #              loss=losses.mean_squared_error,
     #              metrics=[metrics.mse, metrics.mae]
     #              )
-    
+
     model.compile(optimizer=optimizers.SGD(),
                   loss=losses.MSE,
                   metrics=[metrics.mse, metrics.mae]
                   )
-    
+
     earlystopping = EarlyStopping(monitor='val_loss', patience=5, mode="auto")
-    
+
     time_stamp = "_" + str(datetime.now().microsecond)
 
     tfboard = TensorBoard(log_dir=config.log_dir + time_stamp,
@@ -107,7 +109,7 @@ def train():
 
     print("\n\n=======================\nTensorboard Logs:\n{}\n========================\n\n".format("tensorboard --logdir={}".format(config.local_log_dir + time_stamp)))
     time.sleep(10)
-    
+
 
     model.fit(x=train_wavs,
               y=train_params,
