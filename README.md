@@ -82,5 +82,7 @@ These can be decoded by [pickle](https://docs.python.org/3/library/pickle.html)
 ### Training Data Generating
 
 1. Change the function param_gen in dataset_gen.py
+
 2. Modify Config.py to change the parameters including parameter number, thread number, and training set size
+
 3. Import dataset_gen to any code or in IPython, and call dataset_gen.generate(**NAME**). A folder called NAME will appear in the Datasets Folder.
